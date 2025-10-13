@@ -1,0 +1,42 @@
+
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: alakara-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: alakara-server
+    restart: always
+    env_file: ./server/.env
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: alakara-client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+volumes:
+  mongo-data:
