@@ -5,7 +5,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 package-lock.json
- .env
+.env
 
 # === Docker ===
 # Docker-related local data and build artifacts
@@ -41,3 +41,8 @@ coverage/
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Environment files
+.env
+server/.env
+client/.env
