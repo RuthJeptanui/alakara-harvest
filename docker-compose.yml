@@ -1,5 +1,4 @@
 
-
 services:
   mongo:
     image: mongo:7
@@ -12,7 +11,7 @@ services:
 
   server:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile.server
     container_name: alakara-server
     restart: always
@@ -27,7 +26,7 @@ services:
 
   client:
     build:
-      context: .
+      context: ./client
       dockerfile: Dockerfile.client
     container_name: alakara-client
     ports:
@@ -35,8 +34,8 @@ services:
     depends_on:
       - server
     volumes:
-      - ./client:/app
-      - /app/node_modules
+      - ./client:/client
+      - /client/node_modules
 
 volumes:
   mongo-data:
