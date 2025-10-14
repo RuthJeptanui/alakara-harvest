@@ -1,10 +1,10 @@
 // core reusable services for user operations
-import usersModels from "../models/users.models";
+import usersModels from "../models/users.models.ts";
 import bcrypt from 'bcryptjs';
-import {generateToken} from '../utils/jwt';
-import { CustomError } from '../utils/errors.utils';
-import { paginate } from "../utils/pagination.utils";
-import { sendResponse } from "../utils/response.utils";
+import {generateToken} from '../utils/jwt.ts';
+import { CustomError } from '../utils/errors.utils.ts';
+import { paginate } from "../utils/pagination.utils.ts";
+import { sendResponse } from "../utils/response.utils.ts";
 
 
 

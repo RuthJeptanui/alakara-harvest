@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import * as userService from '../services/user.service';
-import { sendResponse } from '../utils/response.utils';
-import { IUser } from '../models/users.models';
+import type { Request, Response, NextFunction } from 'express';
+import * as userService from '../services/user.service.ts';
+
+import { sendResponse } from '../utils/response.utils.ts';
+import type { IUser } from '../models/users.models.ts';
 
 
 

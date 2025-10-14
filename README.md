@@ -37,7 +37,7 @@ npm install express mongoose dotenv cors
 npm install --save-dev nodemon
 ```
 
-**Example `server.js`:**
+**Example `server.ts`:**
 ```js
 import express from "express";
 import mongoose from "mongoose";

@@ -1,6 +1,6 @@
 // src/middlewares/error.middleware.ts
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { CustomError } from '../utils/errors.utils';
 import logger from '../utils/logger.utils';
 

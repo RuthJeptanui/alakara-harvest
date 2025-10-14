@@ -2,10 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/server.js",
+  "main": "src/server.ts",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "node dist/server.js",
+    "dev": "nodemon --watch \"src/**/*.ts\" --exec \"npx ts-node-esm src/server.ts\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -23,7 +23,6 @@
     "nodemailer": "^7.0.9",
     "zod": "^4.1.12"
   },
-  
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
@@ -35,5 +34,4 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
-  
 }

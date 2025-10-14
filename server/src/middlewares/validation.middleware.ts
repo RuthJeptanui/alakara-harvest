@@ -1,8 +1,8 @@
 // src/middlewares/validation.middleware.ts
 
-import { Request, Response, NextFunction } from 'express';
+import type{ Request, Response, NextFunction } from 'express';
 import { ZodObject } from 'zod'; // Assuming Zod for validation
-import { CustomError } from '../utils/errors.utils';
+import { CustomError } from '../utils/errors.utils.ts';
 
 export default (schema: ZodObject<any>) => (req: Request, res: Response, next: NextFunction) => {
   try {

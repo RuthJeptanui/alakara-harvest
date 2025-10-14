@@ -1,8 +1,11 @@
 
-import { Request, Response,NextFunction } from "express";
+import type { Request, Response,NextFunction } from "express";
 import jwt from 'jsonwebtoken';
-import { CustomError } from "../utils/errors.utils";
-import usersModels, { IUser } from "../models/users.models"
+import { CustomError } from "../utils/errors.utils.ts";
+import  type { IUser } from "../models/users.models.ts"
+import usersModels from "../models/users.models.ts";
+
+
 
 
 declare global {

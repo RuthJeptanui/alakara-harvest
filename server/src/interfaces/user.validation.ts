@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { LANGUAGES, ACCOUNT_STATUSES, HARVEST_FREQUENCIES } from '../utils/constants.utils';
+import { LANGUAGES, ACCOUNT_STATUSES, HARVEST_FREQUENCIES } from '../utils/constants.utils.ts';
 
 export const registerSchema = z.object({
   email: z.string().email(),

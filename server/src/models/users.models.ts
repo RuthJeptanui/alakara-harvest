@@ -98,8 +98,7 @@ const userSchema = new Schema<IUser>(
 );
 
 // Indexes
-userSchema.index({ email: 1 }, { unique: true });
-userSchema.index({ phoneNumber: 1 }, { unique: true });
+
 userSchema.index({ 'profile.location': '2dsphere' });
 userSchema.index({ 'metadata.accountStatus': 1, 'metadata.lastLogin': -1 });
 

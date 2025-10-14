@@ -20,5 +20,5 @@ EXPOSE 5000
 RUN npm install -g nodemon
 
 # Start the server with nodemon for live reloading
-CMD ["nodemon", "src/server.js"]
+CMD ["nodemon", "src/server.ts"]
 
