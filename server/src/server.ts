@@ -21,9 +21,34 @@ console.log('Environment variables loaded successfully');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
+
+
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+
+//proxy for google api requests 
+app.get('/api/geocode', async (req, res) => {
+  try {
+    const address = req.query.address;
+    if (typeof address !== 'string') {
+      return res.status(400).json({ error: 'Address query parameter is required and must be a string' });
+    }
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.GOOGLE_API_KEY}`
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching geocode:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
