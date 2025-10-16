@@ -26,7 +26,12 @@ const PORT = process.env.PORT || 5000;
 
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:5173', 'http://172.18.0.4:5173'],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 
@@ -37,8 +42,11 @@ app.get('/api/geocode', async (req, res) => {
     if (typeof address !== 'string') {
       return res.status(400).json({ error: 'Address query parameter is required and must be a string' });
     }
+    // Use a server-side fetch without forwarding the client's Referer header to avoid API key referrer restrictions.
+    // The referrerPolicy: 'no-referrer' option prevents sending the Referer header.
     const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.GOOGLE_API_KEY}`
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${process.env.GOOGLE_API_KEY}`,
+      { method: 'GET', referrerPolicy: 'no-referrer' }
     );
     const data = await response.json();
     res.json(data);
@@ -48,7 +56,8 @@ app.get('/api/geocode', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// server will be started after DB connection in startServer()
+
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {

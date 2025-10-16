@@ -5,11 +5,13 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import VerifyEmail from './pages/VerifyEmail';
+import { LandingPage } from './pages/LandingPage';
 
 const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <Routes>
+        <Route path='/' element={<LandingPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
