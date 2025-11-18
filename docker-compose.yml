@@ -1,9 +1,9 @@
 
-
 services:
+
   mongo:
     image: mongo:7
-    container_name: alakara-mongo
+    container_name: alakara-harvest
     restart: always
     ports:
       - "27017:27017"
@@ -12,13 +12,15 @@ services:
 
   server:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile.server
     container_name: alakara-server
     restart: always
     env_file: ./server/.env
     ports:
       - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/alakara-harvest
     depends_on:
       - mongo
     volumes:
@@ -27,11 +29,14 @@ services:
 
   client:
     build:
-      context: .
+      context: ./client
       dockerfile: Dockerfile.client
     container_name: alakara-client
     ports:
       - "5173:5173"
+    environment:
+      - VITE_API_URL=http://server:5000
+    command: ["npm", "run", "dev", ]
     depends_on:
       - server
     volumes:
