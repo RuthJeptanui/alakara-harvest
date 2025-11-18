@@ -26,6 +26,7 @@
     "@types/pino": "^7.0.4"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.53.4",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "express-rate-limit": "^8.1.0",
