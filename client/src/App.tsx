@@ -1,84 +1,89 @@
-import React from 'react';
-import { Routes, Route, Link, 
-  // Outlet,
-  // useLocation,
-  // Link,
-  
-  
-   } from 'react-router-dom';
-import Register from './pages/Register';
-import Login from './pages/Login';
+import React, { useState } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
+import {
+  ClerkLoaded,
+  ClerkProvider,
+  RedirectToSignIn,
+  SignedIn,
+  SignedOut
+} from '@clerk/clerk-react';
+
+// --- Import Our Pages & Components ---
+
 import Profile from './pages/Profile';
-import Admin from './pages/Admin';
-import VerifyEmail from './pages/VerifyEmail';
+// import Admin from './pages/Admin'; // Removed
+
 import LandingPage from './pages/LandingPage';
-import { ClerkLoaded, ClerkProvider, RedirectToSignIn, SignedIn, SignedOut } from '@clerk/clerk-react';
+import Resources from './pages/Resources';
+import Dashboard from './pages/dashboard/DashboardPage';
+import MainLayout from './components/MainLayout';
+import AIChatbot from './components/AIChatBot';
+// icons
+import { MessageSquare } from 'lucide-react'; 
 
+// Import your Publishable Key
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
+if (!PUBLISHABLE_KEY) {
+  throw new Error('Add your Clerk Publishable Key to the .env file');
+}
 
-
-
- // Import your Publishable Key
-  const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-
-  if (!PUBLISHABLE_KEY) {
-    throw new Error('Add your Clerk Publishable Key to the .env file')
-  }
-
-
+/**
+ * A layout component for routes that should only be accessible to signed-in users.
+ * It renders the children (the protected page) if the user is signed in,
+ * and redirects to the sign-in page if they are not.
+ */
+const ProtectedLayout = ({ redirectUrl, children }: { redirectUrl: string, children: React.ReactNode }) => {
+  return (
+    <>
+      <SignedIn>
+        {children}
+      </SignedIn>
+      <SignedOut>
+        <RedirectToSignIn redirectUrl={redirectUrl} />
+      </SignedOut>
+    </>
+  );
+};
 
 const App: React.FC = () => {
-
-
-  
-
+  // --- State to manage the chatbot modal ---
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   return (
-    <ClerkProvider
-      publishableKey={PUBLISHABLE_KEY}
-      
-    >
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <ClerkLoaded>
-        <div className="min-h-screen bg-gray-100 font-sans text-gray-900">
+        <div className="min-h-screen bg-gray-100 font-sans text-gray-900 relative">
+          
+          {/* --- Main Page Routes --- */}
           <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
+            {/* --- Routes with the MainLayout (Nav bar) --- */}
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/resources" element={<Resources />} />
 
-            {/* Clerk Sign In/Up Routes */}
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-
-            {/* This route is usually handled by Clerk's email flow, but you can have a custom one */}
-            <Route path="/verify-email/:token" element={<VerifyEmail />} />
-
-            {/* Protected Routes */}
-            <Route
-              path="/profile"
-              element={
-                <>
-                  <SignedIn>
+              {/* Protected Routes (also use MainLayout) */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedLayout redirectUrl="/dashboard">
+                    <Dashboard />
+                  </ProtectedLayout>
+                }
+               />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedLayout redirectUrl="/profile">
                     <Profile />
-                  </SignedIn>
-                  <SignedOut>
-                    <RedirectToSignIn redirectUrl="/profile" />
-                  </SignedOut>
-                </>
-              }
-            />
+                  </ProtectedLayout>
+                }
+              />
+              {/* Admin route removed */}
+            </Route>
 
-            <Route
-              path="/admin"
-              element={
-                <>
-                  <SignedIn>
-                    <Admin />
-                  </SignedIn>
-                  <SignedOut>
-                    <RedirectToSignIn redirectUrl="/admin" />
-                  </SignedOut>
-                </>
-              }
-            />
+            {/* --- Routes without the MainLayout (No nav bar) --- */}
+            
 
             {/* 404 */}
             <Route
@@ -98,14 +103,30 @@ const App: React.FC = () => {
               }
             />
           </Routes>
+
+          {/* --- AI Chatbot Integration --- */}
+          <>
+            {/* Show floating chat button only when signed in */}
+            <SignedIn>
+              <button
+                onClick={() => setIsChatOpen(true)}
+                className="fixed bottom-6 right-6 bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 z-40"
+                aria-label="Open AI Farm Assistant"
+              >
+                <MessageSquare className="h-6 w-6" />
+              </button>
+            </SignedIn>
+
+            {/* Render the Chatbot modal if isChatOpen is true */}
+            {isChatOpen && (
+              <AIChatbot onClose={() => setIsChatOpen(false)} />
+            )}
+          </>
+          
         </div>
       </ClerkLoaded>
     </ClerkProvider>
   );
-
-
 };
-
-
 
 export default App;
