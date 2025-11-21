@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IProfile } from '../interfaces/dtos/profile-dtos';
+import type { IProfile } from '../interfaces/dtos/profile-dtos.ts';
 
 const profileSchema = new Schema<IProfile>({
   // This ID comes from Clerk and is our unique key

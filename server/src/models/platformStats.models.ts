@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IPlatformStats } from '../interfaces/dtos/dashboard-dtos';
+import type { IPlatformStats } from '../interfaces/dtos/dashboard-dtos.ts';
 
 // This schema is designed to hold only one document
 const platformStatsSchema = new Schema<IPlatformStats>({

@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
-import { MarketData } from '../models/marketData.models';
-import { CropData } from '../models/cropData.models';
-import { PlatformStats } from '../models/platformStats.models';
-import { Alert } from '../models/alert.models';
-import { Trend } from '../models/trend.models';
+import express from 'express';
+import type { Request, Response } from 'express';
+import { MarketData } from '../models/marketData.models.ts';
+import { CropData } from '../models/cropData.models.ts';
+import { PlatformStats } from '../models/platformStats.models.ts';
+import { Alert } from '../models/alert.models.ts';
+import { Trend } from '../models/trend.models.ts';
 
 // Import our mock data for seeding
 import {

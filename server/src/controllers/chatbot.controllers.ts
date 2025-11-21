@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
-import { ChatSession } from '../models/chatbot.models';
-import { generateBotResponse } from '../services/chatbot.service';
-import { IMessage } from '../interfaces/dtos/chatbot-dtos';
+import express from 'express';
+import type { Request, Response } from 'express';
+import { ChatSession } from '../models/chatbot.models.ts';
+import { generateBotResponse } from '../services/chatbot.service.ts';
+import type { IMessage } from '../interfaces/dtos/chatbot-dtos.ts';
 
 // For this example, we'll find-or-create one single chat session
 // Later, this would be based on req.user.id from auth

@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { ICropData } from '../interfaces/dtos/dashboard-dtos';
+import type { ICropData } from '../interfaces/dtos/dashboard-dtos.ts';
 
 const cropDataSchema = new Schema<ICropData>({
   cropId: { type: String, required: true, unique: true },
