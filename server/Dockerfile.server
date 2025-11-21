@@ -17,8 +17,10 @@ COPY . .
 EXPOSE 5000
 
 # Install nodemon globally for auto-restart during development
-RUN npm install -g nodemon
+#RUN npm install -g nodemon
 
 # Start the server with nodemon for live reloading
-CMD ["nodemon", "src/server.ts"]
+CMD ["node", "src/server.ts"]
+
+
 
