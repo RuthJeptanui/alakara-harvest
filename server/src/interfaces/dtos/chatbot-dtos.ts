@@ -1,5 +1,9 @@
+
+// File: server/src/interfaces/dtos/chatbot-dtos.ts
+
+
 // We can re-use the interface you defined
-export interface IMessage {
+export interface IMessage  {
   id: string;
   text: string;
   sender: 'user' | 'bot';
@@ -9,6 +13,6 @@ export interface IMessage {
 // We'll create a Chat Session to hold a conversation
 export interface IChatSession {
   // We can link this to a user ID later
-  // userId: string; 
+  userId: string; 
   messages: IMessage[];
 }

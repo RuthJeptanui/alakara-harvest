@@ -1,7 +1,7 @@
 //import { ClerkExpressRequireAuth } from '@clerk/express';
 import { requireAuth } from "@clerk/express";
-
-import { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
 
 // This is the main authentication middleware
 // It will check for a valid JWT in the Authorization header

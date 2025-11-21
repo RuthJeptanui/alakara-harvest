@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
-import { Profile } from '../models/profile.models';
+import express from 'express';
+import type { Request, Response } from 'express';
+import { Profile } from '../models/profile.models.ts';
 
 // Extend the Express Request type to include the 'auth' object
 // This is added by the Clerk 'requireAuth' middleware

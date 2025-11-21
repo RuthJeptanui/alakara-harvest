@@ -1,5 +1,5 @@
 import { Schema, model, Document } from 'mongoose';
-import { IMessage, IChatSession } from '../interfaces/dtos/chatbot-dtos';
+import type  { IMessage, IChatSession } from '../interfaces/dtos/chatbot-dtos.ts';
 
 // Schema for the individual messages
 const messageSchema = new Schema<IMessage>({

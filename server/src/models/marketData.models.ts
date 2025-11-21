@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IMarketData } from '../interfaces/dtos/dashboard-dtos';
+import type { IMarketData } from '../interfaces/dtos/dashboard-dtos.ts';
 
 const marketDataSchema = new Schema<IMarketData>({
   crop: { type: String, required: true },

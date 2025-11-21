@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IAlert } from '../interfaces/dtos/dashboard-dtos';
+import type { IAlert } from '../interfaces/dtos/dashboard-dtos.ts';
 
 const alertSchema = new Schema<IAlert>({
   type: { type: String, enum: ['alert', 'opportunity', 'info'], required: true },
