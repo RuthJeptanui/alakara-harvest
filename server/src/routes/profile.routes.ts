@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getProfile, updateProfile } from '../controllers/profile.controllers.ts';
-import { authMiddleware } from '../middlewares/clerk.middleware.ts';
+import {  requireAuthMiddleware } from '../middlewares/clerk.middleware.ts';
 
 const router = Router();
 
@@ -10,10 +10,10 @@ const router = Router();
 // If they are, it will attach 'req.auth' and call the controller.
 
 // GET /api/profile
-router.get('/profile', authMiddleware, getProfile);
+router.get('/profile', requireAuthMiddleware, getProfile);
 
 // PUT /api/profile
-router.put('/profile', authMiddleware, updateProfile);
+router.put('/profile', requireAuthMiddleware, updateProfile);
 
 export default router;
 

@@ -1,11 +1,10 @@
 import { Router } from 'express';
 import { getDashboardData } from '../controllers/dashboard.controllers.ts';
-import { requireAuth } from '@clerk/express';
-import { authMiddleware } from '../middlewares/clerk.middleware';
+import {  requireAuthMiddleware } from '../middlewares/clerk.middleware.ts';
 
 const router = Router();
 
 // Protect the dashboard route
-router.get('/dashboard', authMiddleware, getDashboardData);
+router.get('/', requireAuthMiddleware, getDashboardData);
 
 export default router;

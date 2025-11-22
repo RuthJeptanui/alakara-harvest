@@ -11,6 +11,7 @@ import {
   BarChart3, 
 } from 'lucide-react';
 import { Button } from'../components/ui/button'; // Assuming you have this, or use standard HTML button
+import { SignInButton, SignUpButton } from '@clerk/clerk-react';
 
 const LandingPage: React.FC = () => {
   return (
@@ -32,19 +33,23 @@ const LandingPage: React.FC = () => {
             Alakara Harvest empowers Kenyan farmers to reduce post-harvest losses in mangoes, tomatoes, and oranges by up to 50%. 
             Use AI-driven insights to harvest smarter, store better, and sell for more.
           </p>
+          
+          {/* --- Updated Buttons to use Clerk --- */}
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Link to="/register">
-              <Button size="lg" className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white border-none text-lg px-8 py-6 h-auto">
+            <SignUpButton mode="modal">
+              <Button size="lg" className="w-full sm:w-auto bg-green-500 hover:bg-green-600 text-white border-none text-lg px-8 py-6 h-auto cursor-pointer">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white/10 text-lg px-8 py-6 h-auto bg-transparent">
+            </SignUpButton>
+
+            <SignInButton mode="modal">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto border-white text-white hover:bg-white/10 text-lg px-8 py-6 h-auto bg-transparent cursor-pointer">
                 Sign In
               </Button>
-            </Link>
+            </SignInButton>
           </div>
+
         </div>
       </section>
 
@@ -202,11 +207,14 @@ const LandingPage: React.FC = () => {
           <p className="text-xl text-gray-600 mb-10">
             Join thousands of Kenyan farmers who are already using Alakara Harvest to improve their yield and income.
           </p>
-          <Link to="/register">
-            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white text-lg px-10 py-6 h-auto rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1">
+          
+          {/* --- Updated Button to use Clerk --- */}
+          <SignUpButton mode="modal">
+            <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white text-lg px-10 py-6 h-auto rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 cursor-pointer">
               Create Your Free Account
             </Button>
-          </Link>
+          </SignUpButton>
+
           <p className="mt-6 text-sm text-gray-500">
             No credit card required • Free for smallholder farmers
           </p>
@@ -231,7 +239,8 @@ const LandingPage: React.FC = () => {
               <ul className="space-y-2 text-sm">
                 <li><Link to="/dashboard" className="hover:text-green-400 transition-colors">Market Data</Link></li>
                 <li><Link to="/resources" className="hover:text-green-400 transition-colors">Resources</Link></li>
-                <li><Link to="/login" className="hover:text-green-400 transition-colors">AI Assistant</Link></li>
+                {/* This link will trigger a redirect to login via ProtectedLayout if not signed in */}
+                <li><Link to="/dashboard" className="hover:text-green-400 transition-colors">AI Assistant</Link></li>
               </ul>
             </div>
             <div>

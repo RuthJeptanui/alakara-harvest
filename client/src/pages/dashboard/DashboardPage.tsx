@@ -5,67 +5,34 @@ import { Progress } from '../../components/ui/progress';
 import { Badge } from '../../components/ui/badge';
 import { TrendingUp, TrendingDown, Clock, DollarSign, BarChart3, AlertCircle, Loader2 } from 'lucide-react';
 
-// --- Define Types (We'll mirror the backend interfaces) ---
-interface IMarketData {
-  crop: string;
-  currentPrice: number;
-  priceChange: number;
-  demand: 'high' | 'medium' | 'low';
-  bestSellingTime: string;
-}
-interface ICropData {
-  cropId: string;
-  name: string;
-  averageLoss: number;
-  currentReduction: number;
-}
-interface IPlatformStats {
-  totalLossReduction: number;
-  farmersHelped: number;
-  avgIncomeIncrease: number;
-}
-interface IAlert {
-  type: 'alert' | 'opportunity' | 'info';
-  title: string;
-  message: string;
-  level: 'high' | 'medium' | 'low';
-}
-interface ITrend {
-  crop: string;
-  trend: string;
-  level: 'positive' | 'neutral' | 'negative';
-}
-interface IDashboardData {
-  stats: IPlatformStats;
-  marketData: IMarketData[];
-  cropData: ICropData[];
-  alerts: IAlert[];
-  trends: ITrend[];
-}
 
-const API_URL = 'http://localhost:3000/api'; // Your backend URL
 
+// Import service and interfaces
+import { getDashboardData } from '../../services/dashboardService.ts';
+import type { IDashboardData } from '../../services/dashboardService.ts';
+
+// --- Dashboard Component ---
 export default function Dashboard() {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, isSignedIn } = useAuth();
   const [data, setData] = useState<IDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchData = async () => {
+      // Wait for Clerk to load
+      if (!isLoaded || !isSignedIn) return;
+
       setIsLoading(true);
       setError(null);
       try {
         const token = await getToken();
-        const response = await fetch(`${API_URL}/dashboard`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error('Failed to fetch dashboard data. Please try again later.');
+        if (!token) {
+            throw new Error("Authentication token not found");
         }
-        const result = await response.json();
+        
+        // Use the service to get data
+        const result = await getDashboardData(token);
         setData(result);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -73,10 +40,11 @@ export default function Dashboard() {
         setIsLoading(false);
       }
     };
-    fetchDashboardData();
-  }, [getToken]);
 
-  // --- Helper Functions ---
+    fetchData();
+  }, [getToken, isLoaded, isSignedIn]);
+
+  // --- Helper Functions for UI Logic ---
   const getPriceChangeIcon = (change: number) => {
     return change > 0 ? TrendingUp : TrendingDown;
   };
@@ -130,6 +98,12 @@ export default function Dashboard() {
           <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-red-800 mb-2">Oops! Something went wrong.</h2>
           <p className="text-red-700">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+          >
+            Retry
+          </button>
         </Card>
       </div>
     );

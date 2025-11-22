@@ -20,7 +20,6 @@ import {
 import type { LucideIcon } from 'lucide-react';
 
 // --- Shadcn/UI Components ---
-// (Assuming you have these in your project)
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
@@ -33,7 +32,6 @@ interface NavLinkProps {
   onClick?: () => void;
 }
 
-// --- Reusable NavLink Component ---
 const NavLink = ({ href, label, icon: Icon, mobile = false, onClick }: NavLinkProps) => {
   const location = useLocation();
   const isActive = location.pathname === href;
@@ -54,17 +52,8 @@ const NavLink = ({ href, label, icon: Icon, mobile = false, onClick }: NavLinkPr
   );
 };
 
-// --- Main Navigation Component ---
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  //const { isSignedIn } = useUser();
-
-  const navItems = [
-    { href: '/', label: 'Home', icon: Sprout },
-    { href: '/resources', label: 'Resources', icon: BookOpen },
-    { href: '/dashboard', label: 'Market Data', icon: BarChart3 },
-  ];
-
   const mobileLinkClick = () => setIsOpen(false);
 
   return (
@@ -80,24 +69,25 @@ const Navigation = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {navItems.map((item) => (
-              <NavLink key={item.href} {...item} />
-            ))}
-
-            <SignedIn>
-              <NavLink href="/profile" label="Profile" icon={User} />
-            </SignedIn>
-
+            
+            {/* PUBLIC LINKS (Visible when signed out) */}
             <SignedOut>
+              <NavLink href="/" label="Home" icon={Sprout} />
+              <NavLink href="/resources" label="Resources" icon={BookOpen} />
+              <div className="h-6 w-px bg-gray-200 mx-2"></div>
               <NavLink href="/login" label="Login" icon={LogIn} />
               <NavLink href="/register" label="Register" icon={UserPlus} />
             </SignedOut>
 
+            {/* DASHBOARD LINKS (Visible when signed in) */}
             <SignedIn>
-              <div className="ml-2">
-                <UserButton afterSignOutUrl="/" />
-              </div>
+              <NavLink href="/dashboard" label="Market Data" icon={BarChart3} />
+              <NavLink href="/profile" label="Profile" icon={User} />
+              {/* You can keep resources visible for logged in users too if you want */}
+               <div className="h-6 w-px bg-gray-200 mx-2"></div>
+              <UserButton afterSignOutUrl="/" />
             </SignedIn>
+
           </div>
 
           {/* Mobile Navigation */}
@@ -115,24 +105,29 @@ const Navigation = () => {
                     <span className="text-lg font-bold">Alakara</span>
                   </div>
                   
-                  {navItems.map((item) => (
-                    <NavLink key={item.href} {...item} mobile onClick={mobileLinkClick} />
-                  ))}
-
-                  <SignedIn>
-                    <NavLink href="/profile" label="Profile" icon={User} mobile onClick={mobileLinkClick} />
-                  </SignedIn>
-
+                  {/* PUBLIC MOBILE LINKS */}
                   <SignedOut>
+                    <NavLink href="/" label="Home" icon={Sprout} mobile onClick={mobileLinkClick} />
+                    <NavLink href="/resources" label="Resources" icon={BookOpen} mobile onClick={mobileLinkClick} />
                     <NavLink href="/login" label="Login" icon={LogIn} mobile onClick={mobileLinkClick} />
                     <NavLink href="/register" label="Register" icon={UserPlus} mobile onClick={mobileLinkClick} />
                   </SignedOut>
-                  
+
+                  {/* DASHBOARD MOBILE LINKS */}
                   <SignedIn>
-                    <div className="border-t pt-4">
-                      <UserButton afterSignOutUrl="/" showName />
+                    <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Dashboard</div>
+                    <NavLink href="/dashboard" label="Market Data" icon={BarChart3} mobile onClick={mobileLinkClick} />
+                    <NavLink href="/profile" label="Profile" icon={User} mobile onClick={mobileLinkClick} />
+                    <NavLink href="/resources" label="Resources" icon={BookOpen} mobile onClick={mobileLinkClick} />
+                    
+                    <div className="border-t pt-4 mt-2">
+                      <div className="flex items-center gap-2">
+                        <UserButton afterSignOutUrl="/" />
+                        <span className="text-sm font-medium text-gray-700">Account</span>
+                      </div>
                     </div>
                   </SignedIn>
+                  
                 </div>
               </SheetContent>
             </Sheet>

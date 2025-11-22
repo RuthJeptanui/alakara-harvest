@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { ITrend } from '../interfaces/dtos/dashboard-dtos';
+import type { ITrend } from '../interfaces/dtos/dashboard-dtos.ts';
 
 const trendSchema = new Schema<ITrend>({
   crop: { type: String, required: true },
