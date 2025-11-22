@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useUser, UserButton, useAuth } from '@clerk/clerk-react';
 
-// Assuming you are using Shadcn/UI components
+//  Shadcn/UI components
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
+import { getProfile, updateProfile } from '../services/profileService';
 
-// Define the API base URL
-const API_URL = 'http://localhost:3000/api'; // Change this to your backend URL
+
 
 // This matches our backend interface
 interface IFarmProfile {
@@ -29,47 +29,44 @@ const Profile: React.FC = () => {
     bio: '',
     mainCrops: [],
   });
+  
+  // Local state for the comma-separated input logic
   const [mainCropsInput, setMainCropsInput] = useState('');
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Fetch the farm-specific profile from our backend
-  const fetchProfile = async () => {
-    setIsLoading(true);
-    setError(null);
-    
-    // We need to get the token from Clerk to send to our backend
-    const token = await getToken();
-    
-    try {
-      const response = await fetch(`${API_URL}/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`, // Send the token
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch profile data.');
-      }
-      
-      const data: IFarmProfile = await response.json();
-      setProfileData(data);
-      setMainCropsInput(data.mainCrops.join(', '));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Load profile data when component mounts and user is loaded
+  // --- Fetch Profile ---
   useEffect(() => {
-    if (isLoaded && user) {
-      fetchProfile();
-    }
-  }, [isLoaded, user]);
+    const loadProfile = async () => {
+      if (!isLoaded || !user) return;
 
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        const token = await getToken();
+        if (!token) throw new Error("Authentication token missing");
+
+        // Call Service
+        const data = await getProfile(token);
+        
+        setProfileData(data);
+        setMainCropsInput(data.mainCrops.join(', '));
+      } catch (err) {
+        // Only set error if it's not a 404 (new user might not have profile yet)
+        console.error(err);
+        // We can silently fail here for new users, or show a mild message
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [isLoaded, user, getToken]);
+
+  // --- Input Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setProfileData(prev => ({ ...prev, [name]: value }));
@@ -79,38 +76,33 @@ const Profile: React.FC = () => {
     setMainCropsInput(e.target.value);
   };
 
-  // Handle saving the farm-specific profile to our backend
+  // --- Save Profile ---
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
     setSuccess(null);
 
-    const token = await getToken();
-    
-    // Convert comma-separated string to array
-    const mainCropsArray = mainCropsInput.split(',').map(crop => crop.trim()).filter(Boolean);
-
     try {
-      const response = await fetch(`${API_URL}/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ ...profileData, mainCrops: mainCropsArray }),
-      });
+      const token = await getToken();
+      if (!token) throw new Error("Authentication token missing");
 
-      if (!response.ok) {
-        throw new Error('Failed to update profile.');
-      }
+      // Convert comma-separated string to array
+      const mainCropsArray = mainCropsInput.split(',').map(crop => crop.trim()).filter(Boolean);
+      
+      const payload: IFarmProfile = { 
+        ...profileData, 
+        mainCrops: mainCropsArray 
+      };
 
-      const updatedData: IFarmProfile = await response.json();
+      // Call Service
+      const updatedData = await updateProfile(token, payload);
+
       setProfileData(updatedData);
       setMainCropsInput(updatedData.mainCrops.join(', '));
       setSuccess('Farm profile updated successfully!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      setError(err instanceof Error ? err.message : 'Failed to save profile.');
     } finally {
       setIsLoading(false);
     }
