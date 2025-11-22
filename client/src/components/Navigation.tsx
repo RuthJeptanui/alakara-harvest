@@ -15,7 +15,8 @@ import {
   User,
   Menu,
   LogIn,
-  UserPlus
+  UserPlus,
+  Truck
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -83,6 +84,7 @@ const Navigation = () => {
             <SignedIn>
               <NavLink href="/dashboard" label="Market Data" icon={BarChart3} />
               <NavLink href="/profile" label="Profile" icon={User} />
+              <NavLink href="/transport" label="Transport" icon={Truck} />
               {/* You can keep resources visible for logged in users too if you want */}
                <div className="h-6 w-px bg-gray-200 mx-2"></div>
               <UserButton afterSignOutUrl="/" />

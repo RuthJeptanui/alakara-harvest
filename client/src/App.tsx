@@ -22,6 +22,7 @@ import AIChatbot from './components/AIChatBot';
 import { MessageSquare } from 'lucide-react'; 
 import Register from './pages/Register';
 import Login from './pages/Login';
+import TransportPage from './pages/Transport';
 
 // Import your Publishable Key
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -80,6 +81,14 @@ const App: React.FC = () => {
                 element={
                   <ProtectedLayout redirectUrl="/profile">
                     <Profile />
+                  </ProtectedLayout>
+                }
+              />
+              <Route
+                path="/transport"
+                element={
+                  <ProtectedLayout redirectUrl="/transport">
+                    <TransportPage />
                   </ProtectedLayout>
                 }
               />

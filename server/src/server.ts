@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import express from 'express';
 import { connectDB } from './config/db.ts';
 // Use the official clerk-express-node SDK
-import { requireAuth, clerkMiddleware } from "@clerk/express";
+import { clerkMiddleware } from "@clerk/express";
 import dotenv from 'dotenv';
 import cors from 'cors';
 
@@ -14,6 +14,7 @@ import dashboardRoutes from './routes/dashboard.routes.ts';
 // --- Import our error handlers ---
 import { CustomError } from './utils/errors.utils.ts';
 import { clerkErrorHandler, requireAuthMiddleware } from './middlewares/clerk.middleware.ts';
+import transportRoutes from './routes/transport.routes.ts';
 
 
 // Load environment variables
@@ -57,6 +58,7 @@ app.use('/api', chatRoutes);
 // Use the authMiddleware to protect these routes
 app.use('/api/profile', requireAuthMiddleware, profileRoutes);
 app.use('/api/dashboard', requireAuthMiddleware, dashboardRoutes);
+app.use('/api/transport', requireAuthMiddleware, transportRoutes);
 
 
 

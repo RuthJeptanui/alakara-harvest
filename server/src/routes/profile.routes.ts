@@ -10,10 +10,10 @@ const router = Router();
 // If they are, it will attach 'req.auth' and call the controller.
 
 // GET /api/profile
-router.get('/profile', requireAuthMiddleware, getProfile);
+router.get('/', requireAuthMiddleware, getProfile);
 
 // PUT /api/profile
-router.put('/profile', requireAuthMiddleware, updateProfile);
+router.put('/', requireAuthMiddleware, updateProfile);
 
 export default router;
 
