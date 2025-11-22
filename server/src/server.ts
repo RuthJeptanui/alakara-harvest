@@ -9,11 +9,11 @@ import cors from 'cors';
 // --- Import our new routes ---
 import chatRoutes from './routes/chatbot.routes.ts';
 import profileRoutes from './routes/profile.routes.ts';
+import dashboardRoutes from './routes/dashboard.routes.ts';
 
 // --- Import our error handlers ---
-//import { clerkErrorHandler } from './middleware/clerk.middleware.ts'; // From feat/profile
 import { CustomError } from './utils/errors.utils.ts';
-import { authMiddleware, clerkErrorHandler } from './middlewares/clerk.middleware.ts';
+import { clerkErrorHandler, requireAuthMiddleware } from './middlewares/clerk.middleware.ts';
 
 
 // Load environment variables
@@ -30,8 +30,8 @@ console.log('Environment variables loaded successfully');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- Middleware Setup ---
 
+// --- Middleware Setup ---
 // CORS Configuration
 app.use(cors({
   origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
@@ -49,24 +49,24 @@ app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
-// --- Mount API Routes ---
 
 // Mount chat routes (which are not protected)
 app.use('/api', chatRoutes);
 
-// Mount profile routes (which *are* protected inside profile.routes.ts)
-app.use('/api', profileRoutes);
 
-// --- (Note: Removed old routes) ---
-// Your test '/profile' route is removed, as we now use the /api/profile
-// app.use('/api/users', userRoutes); // Commented out: Clerk handles user management
+// Use the authMiddleware to protect these routes
+app.use('/api/profile', requireAuthMiddleware, profileRoutes);
+app.use('/api/dashboard', requireAuthMiddleware, dashboardRoutes);
+
+
+
+
 
 
 // --- Error Handling Middleware ---
-// MUST be in this order
-
 // 1. Clerk's error handler (catches 401s from 'requireAuth')
 app.use(clerkErrorHandler);
+
 
 // 2. Your custom error handler
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

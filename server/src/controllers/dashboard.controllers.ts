@@ -13,7 +13,7 @@ import {
   mockPlatformStats,
   mockAlerts,
   mockTrends
-} from '../lib/mockData';
+} from '../lib/mockData.ts';
 
 // --- Helper function to seed the database ---
 const seedDatabase = async () => {
