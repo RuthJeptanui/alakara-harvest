@@ -1,8 +1,9 @@
 // Define the API URL - In a real app, use import.meta.env.VITE_API_URL
 const API_URL = 'http://localhost:5000/api'
 
-// --- Interfaces ---
-// We export these so the component can use them without redefining them
+
+
+// --- Existing Interfaces ---
 export interface IMarketData {
   crop: string;
   currentPrice: number;
@@ -37,20 +38,24 @@ export interface ITrend {
   level: 'positive' | 'neutral' | 'negative';
 }
 
+// --- NEW: Weather Interface ---
+export interface IWeatherData {
+  temp: number;
+  humidity: number;
+  description: string;
+  location: string;
+  icon: string;
+}
+
 export interface IDashboardData {
   stats: IPlatformStats;
   marketData: IMarketData[];
   cropData: ICropData[];
   alerts: IAlert[];
   trends: ITrend[];
+  weather?: IWeatherData; // <-- Added optional weather
 }
 
-// --- Service Functions ---
-
-/**
- * Fetches the dashboard data from the backend.
- * @param token - The Clerk authentication token
- */
 export const getDashboardData = async (token: string): Promise<IDashboardData> => {
   try {
     const response = await fetch(`${API_URL}/dashboard`, {
@@ -62,7 +67,6 @@ export const getDashboardData = async (token: string): Promise<IDashboardData> =
     });
 
     if (!response.ok) {
-      // Try to parse error message from server
       const errorData = await response.json().catch(() => null);
       throw new Error(errorData?.message || `Error ${response.status}: Failed to fetch dashboard data`);
     }
@@ -71,11 +75,6 @@ export const getDashboardData = async (token: string): Promise<IDashboardData> =
     return data;
   } catch (error) {
     console.error('Dashboard Service Error:', error);
-    console.error('API URL:', API_URL);
-    //message error to the console
-    if (error instanceof Error) {
-      console.error('Error message:', error.message);
-    }
     throw error;
   }
 };

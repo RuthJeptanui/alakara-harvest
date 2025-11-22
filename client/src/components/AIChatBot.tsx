@@ -6,49 +6,47 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
-
-// This interface is now defined on the backend, 
-// but it's good practice to have it on the frontend too.
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-}
+import { getChatHistory, sendChatMessage, type IMessage } from '../services/aiService';
+import { useAuth } from '@clerk/clerk-react';
 
 interface AIChatbotProps {
   onClose: () => void;
 }
 
-// Define the API base URL
-const API_URL = 'http://localhost:3000/api'; // Change this to your backend URL
-
 const AIChatbot = ({ onClose }: AIChatbotProps) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  // 1. Get the auth hook here inside the component
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // For loading history
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // --- NEW: Fetch chat history on component mount ---
+  // --- Fetch Chat History ---
   useEffect(() => {
-    const fetchHistory = async () => {
+    const loadHistory = async () => {
+      // Wait for Clerk to be ready
+      if (!isLoaded || !isSignedIn) return;
+
       setIsLoading(true);
       try {
-        const response = await fetch(`${API_URL}/chat/history`);
-        const data: Message[] = await response.json();
-        setMessages(data);
+        // 2. Get the token here
+        const token = await getToken();
+        if (!token) throw new Error("No auth token");
+
+        // 3. Pass the token to the service
+        const history = await getChatHistory(token);
+        setMessages(history);
       } catch (error) {
-        console.error("Failed to fetch chat history:", error);
-        // Add a friendly error message
         setMessages([
           {
             id: 'error-1',
-            text: 'Sorry, I couldn t load our past conversation. Let\'s start fresh!',
+            text: "Sorry, I couldn't load our past conversation. Let's start fresh!",
             sender: 'bot',
             timestamp: new Date()
           }
@@ -57,52 +55,37 @@ const AIChatbot = ({ onClose }: AIChatbotProps) => {
         setIsLoading(false);
       }
     };
-    fetchHistory();
-  }, []);
+    loadHistory();
+  }, [isLoaded, isSignedIn, getToken]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
- 
-
-  // --- UPDATED: handleSendMessage now calls the backend API ---
+  // --- Send Message ---
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(), // Temporary ID, backend will create its own
+    const userMessage: IMessage = {
+      id: Date.now().toString(), 
       text: inputValue,
       sender: 'user',
       timestamp: new Date()
     };
 
-    // Optimistic update: Add user message immediately
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsTyping(true);
 
     try {
-      const response = await fetch(`${API_URL}/chat/message`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: userMessage.text }),
-      });
+      // 4. Get the token again for the POST request
+      const token = await getToken();
+      if (!token) throw new Error("No auth token");
 
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-
-      const botResponse: Message = await response.json();
-      
-      // Add the bot's response from the API
+      // 5. Pass text AND token to the service
+      const botResponse = await sendChatMessage(userMessage.text, token);
       setMessages(prev => [...prev, botResponse]);
-
     } catch (error) {
-      console.error("Failed to send message:", error);
-      // Add a bot error message
       setMessages(prev => [...prev, {
         id: 'error-2',
         text: 'Sorry, I seem to be having trouble connecting. Please try again in a moment.',
@@ -141,9 +124,7 @@ const AIChatbot = ({ onClose }: AIChatbotProps) => {
         </CardHeader>
         
         <CardContent className="flex-1 flex flex-col p-0">
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {/* --- NEW: Loading state for history --- */}
             {isLoading && (
               <div className="flex justify-center items-center h-full">
                 <div className="text-gray-500">Loading conversation...</div>
@@ -184,7 +165,6 @@ const AIChatbot = ({ onClose }: AIChatbotProps) => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Actions */}
           <div className="p-4 border-t bg-gray-50">
             <div className="text-xs text-gray-600 mb-2 flex items-center gap-1">
               <Lightbulb className="h-3 w-3" />
@@ -204,7 +184,6 @@ const AIChatbot = ({ onClose }: AIChatbotProps) => {
             </div>
           </div>
 
-          {/* Input */}
           <div className="p-4 border-t">
             <div className="flex gap-2">
               <Input
@@ -213,7 +192,7 @@ const AIChatbot = ({ onClose }: AIChatbotProps) => {
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about post-harvest practices..."
                 className="flex-1"
-                disabled={isTyping || isLoading} // Disable input while loading/typing
+                disabled={isTyping || isLoading}
               />
               <Button onClick={handleSendMessage} size="icon" className="bg-green-600 hover:bg-green-700" disabled={isTyping || isLoading}>
                 <Send className="h-4 w-4" />

@@ -3,7 +3,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Progress } from '../../components/ui/progress';
 import { Badge } from '../../components/ui/badge';
-import { TrendingUp, TrendingDown, Clock, DollarSign, BarChart3, AlertCircle, Loader2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Clock, DollarSign, BarChart3, AlertCircle, Loader2, Droplets } from 'lucide-react';
 
 
 
@@ -20,18 +20,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Wait for Clerk to load
       if (!isLoaded || !isSignedIn) return;
-
       setIsLoading(true);
-      setError(null);
       try {
         const token = await getToken();
-        if (!token) {
-            throw new Error("Authentication token not found");
-        }
-        
-        // Use the service to get data
+        if (!token) throw new Error("Authentication token not found");
         const result = await getDashboardData(token);
         setData(result);
       } catch (err) {
@@ -40,19 +33,11 @@ export default function Dashboard() {
         setIsLoading(false);
       }
     };
-
     fetchData();
   }, [getToken, isLoaded, isSignedIn]);
 
-  // --- Helper Functions for UI Logic ---
-  const getPriceChangeIcon = (change: number) => {
-    return change > 0 ? TrendingUp : TrendingDown;
-  };
-
-  const getPriceChangeColor = (change: number) => {
-    return change > 0 ? 'text-green-600' : 'text-red-600';
-  };
-
+  const getPriceChangeIcon = (change: number) => change > 0 ? TrendingUp : TrendingDown;
+  const getPriceChangeColor = (change: number) => change > 0 ? 'text-green-600' : 'text-red-600';
   const getDemandColor = (demand: string) => {
     switch (demand) {
       case 'high': return 'bg-green-100 text-green-800';
@@ -61,7 +46,6 @@ export default function Dashboard() {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
-
   const getTrendBorderColor = (level: string) => {
     switch (level) {
       case 'positive': return 'border-l-green-500';
@@ -70,7 +54,6 @@ export default function Dashboard() {
       default: return 'border-l-gray-500';
     }
   };
-
   const getAlertIconStyle = (level: string) => {
      switch (level) {
       case 'high': return 'bg-red-500';
@@ -80,7 +63,6 @@ export default function Dashboard() {
     }
   };
 
-  // --- Loading State ---
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -90,35 +72,46 @@ export default function Dashboard() {
     );
   }
 
-  // --- Error State ---
   if (error) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh] max-w-lg mx-auto text-center">
-        <Card className="border-red-200 bg-red-50 p-8">
-          <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-red-800 mb-2">Oops! Something went wrong.</h2>
-          <p className="text-red-700">{error}</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
-          >
-            Retry
-          </button>
-        </Card>
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <p className="text-red-600">Error: {error}</p>
       </div>
     );
   }
 
-  // --- Data Loaded State ---
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Market Intelligence Dashboard</h1>
-          <p className="text-xl text-gray-600">
-            Real-time market data and insights to optimize your selling decisions
-          </p>
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Market Intelligence</h1>
+            <p className="text-xl text-gray-600">
+              Real-time data to optimize your harvest
+            </p>
+          </div>
+          
+          {/* Weather Widget (New) */}
+          {data?.weather && (
+            <div className="mt-4 md:mt-0 bg-blue-600 text-white p-4 rounded-xl shadow-lg flex items-center gap-4">
+              <img 
+                src={`https://openweathermap.org/img/wn/${data.weather.icon}@2x.png`} 
+                alt="Weather" 
+                className="h-12 w-12"
+              />
+              <div>
+                <div className="text-2xl font-bold">{data.weather.temp}°C</div>
+                <div className="text-sm text-blue-100 capitalize">{data.weather.description}</div>
+                <div className="text-xs text-blue-200 flex items-center gap-1 mt-1">
+                   <Droplets className="h-3 w-3" /> {data.weather.humidity}% Humidity
+                </div>
+              </div>
+              <div className="ml-4 text-right text-sm font-medium">
+                {data.weather.location}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Key Metrics */}
@@ -130,9 +123,6 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">{data?.stats.totalLossReduction}%</div>
-              <p className="text-xs text-muted-foreground">
-                Among farmers using our platform
-              </p>
               <Progress value={data?.stats.totalLossReduction} className="mt-2" />
             </CardContent>
           </Card>
@@ -144,9 +134,6 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">{data?.stats.farmersHelped.toLocaleString()}+</div>
-              <p className="text-xs text-muted-foreground">
-                Across Kenya
-              </p>
             </CardContent>
           </Card>
 
@@ -157,9 +144,6 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-600">{data?.stats.avgIncomeIncrease}%</div>
-              <p className="text-xs text-muted-foreground">
-                Average improvement
-              </p>
             </CardContent>
           </Card>
         </div>
@@ -172,7 +156,7 @@ export default function Dashboard() {
               Current Market Prices
             </CardTitle>
             <CardDescription>
-              Live market data updated every hour
+              Live market data (Updated Hourly)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -213,14 +197,11 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Crop Performance Overview */}
+        {/* Crop Performance & Trends */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           <Card>
             <CardHeader>
               <CardTitle>Loss Reduction by Crop</CardTitle>
-              <CardDescription>
-                Average loss reduction achieved by farmers using our platform
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -231,9 +212,6 @@ export default function Dashboard() {
                       <span className="text-sm text-green-600 font-medium">{crop.currentReduction}% reduction</span>
                     </div>
                     <Progress value={crop.currentReduction} className="h-2" />
-                    <div className="text-xs text-gray-500">
-                      From {crop.averageLoss}% to {crop.averageLoss - crop.currentReduction}% average loss
-                    </div>
                   </div>
                 ))}
               </div>
@@ -243,9 +221,6 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Weekly Market Trends</CardTitle>
-              <CardDescription>
-                Price trends and recommendations for the coming week
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -262,16 +237,13 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Alerts and Recommendations */}
+        {/* Alerts */}
         <Card className="border-orange-200 bg-orange-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-orange-800">
               <AlertCircle className="h-5 w-5" />
-              Market Alerts & Recommendations
+              Market Alerts
             </CardTitle>
-            <CardDescription className="text-orange-700">
-              Important updates for this week
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

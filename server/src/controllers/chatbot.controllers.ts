@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import { ChatSession } from '../models/chatbot.models.ts';
 import { generateBotResponse } from '../services/chatbot.service.ts';
 import type { IMessage } from '../interfaces/dtos/chatbot-dtos.ts';
+import { generateAIResponse } from '../services/ai.service.ts';
 
 // For this example, we'll find-or-create one single chat session
 // Later, this would be based on req.user.id from auth
@@ -40,7 +41,7 @@ export const postMessage = async (req: Request, res: Response) => {
 
     const session = await getOrCreateSession();
 
-    // 1. Create and add user message
+    // 1. User Message
     const userMessage: IMessage = {
       id: Date.now().toString(),
       text,
@@ -49,8 +50,9 @@ export const postMessage = async (req: Request, res: Response) => {
     };
     session.messages.push(userMessage);
 
-    // 2. Generate and add bot response
-    const botResponseText = generateBotResponse(text);
+    // 2. AI Generation (Using Hugging Face now)
+    const botResponseText = await generateAIResponse(text); // <-- Await the AI
+    
     const botMessage: IMessage = {
       id: (Date.now() + 1).toString(),
       text: botResponseText,
@@ -59,11 +61,7 @@ export const postMessage = async (req: Request, res: Response) => {
     };
     session.messages.push(botMessage);
 
-    // 3. Save the session
     await session.save();
-
-    // 4. Send *only the new bot message* back to the client
-    // The client will use this to update its state.
     res.status(201).json(botMessage);
 
   } catch (error) {
