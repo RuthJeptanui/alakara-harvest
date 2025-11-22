@@ -6,7 +6,6 @@ import { PlatformStats } from '../models/platformStats.models.ts';
 import { Alert } from '../models/alert.models.ts';
 import { Trend } from '../models/trend.models.ts';
 
-// Import our mock data for seeding
 import {
   mockMarketData,
   mockCropData,
@@ -14,58 +13,63 @@ import {
   mockAlerts,
   mockTrends
 } from '../lib/mockData.ts';
+import { getFaoTrends } from '../services/fao.service.ts';
+import { getLiveWeather } from '../services/weather.service.ts';
 
-// --- Helper function to seed the database ---
 const seedDatabase = async () => {
   try {
-    // We only seed if the collections are empty
     if (await PlatformStats.countDocuments() === 0) {
       await PlatformStats.create(mockPlatformStats);
-      console.log('DB Seeded: PlatformStats');
     }
     if (await MarketData.countDocuments() === 0) {
       await MarketData.insertMany(mockMarketData);
-      console.log('DB Seeded: MarketData');
     }
     if (await CropData.countDocuments() === 0) {
       await CropData.insertMany(mockCropData.map(c => ({ ...c, cropId: c.id })));
-      console.log('DB Seeded: CropData');
     }
     if (await Alert.countDocuments() === 0) {
       await Alert.insertMany(mockAlerts);
-      console.log('DB Seeded: Alerts');
     }
     if (await Trend.countDocuments() === 0) {
       await Trend.insertMany(mockTrends);
-      console.log('DB Seeded: Trends');
     }
   } catch (error) {
     console.error('Error seeding database:', error);
   }
 };
 
-// --- Main Controller Function ---
 export const getDashboardData = async (req: Request, res: Response) => {
   try {
-    // 1. Seed the database (this will only run if collections are empty)
     await seedDatabase();
 
-    // 2. Fetch all data in parallel for performance
+    // Fetch DB data
     const [stats, marketData, cropData, alerts, trends] = await Promise.all([
       PlatformStats.findOne(),
-      MarketData.find().sort({ createdAt: -1 }).limit(3), // Get 3 most recent
+      MarketData.find().sort({ createdAt: -1 }).limit(3),
       CropData.find(),
-      Alert.find().sort({ createdAt: -1 }).limit(3), // Get 3 most recent
-      Trend.find().sort({ createdAt: -1 }).limit(3)  // Get 3 most recent
+      Alert.find().sort({ createdAt: -1 }).limit(3),
+      Trend.find().sort({ createdAt: -1 }).limit(3)
     ]);
 
-    // 3. Send the combined data object
+    // Fetch External API data (Live)
+    const weather = await getLiveWeather();
+    const faoData = await getFaoTrends(); 
+
+    // If we got valid FAO data, we might ideally update our 'trends' collection here
+    // For now, we'll just log it to show it's working
+    if (faoData.length > 0) {
+        console.log("Fetched FAO Data:", faoData.length, "records");
+    }
+
+    // Send everything to frontend
     res.status(200).json({
       stats,
       marketData,
       cropData,
       alerts,
-      trends
+      trends,
+      weather, // <-- Added weather to response
+      externalMarketTrends: faoData // <-- Added FAO trends
     });
 
   } catch (error) {
