@@ -5,7 +5,7 @@ WORKDIR /app
 
 # copy package files and install deps (including dev for tsc)
 COPY package*.json ./
-RUN npm ci
+RUN npm i
 
 # copy source & build
 COPY . .
