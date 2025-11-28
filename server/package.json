@@ -5,6 +5,7 @@
   "main": "src/server.ts",
   "scripts": {
     "start": "node dist/server.js",
+    "build": "tsc",
     "dev": "nodemon --watch \"src/**/*.ts\" --exec \"npx ts-node-esm src/server.ts\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
