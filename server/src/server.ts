@@ -106,7 +106,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 };
 
