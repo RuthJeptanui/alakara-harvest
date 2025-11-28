@@ -25,7 +25,7 @@ COPY --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 # Use the port your app expects; Render will set env PORT if you need it.
 EXPOSE 5000
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/server.ts"]
 
 
 
