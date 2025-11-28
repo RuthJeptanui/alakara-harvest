@@ -17,7 +17,7 @@ WORKDIR /app
 
 # Only copy production deps
 COPY package*.json ./
-RUN npm ci --production
+RUN npm i --production
 
 # copy built files
 COPY --from=builder /app/dist ./dist
